@@ -45,8 +45,14 @@ for row in samples:
     print("-------------------------------------------------")
     print("Result: ", results, "Value of y_hat: ", value_of_n)
     print("-------------------------------------------------")
+
     # Write the results to a new CSV file
-    with open("Logs/log.txt", "a") as output_file:
-        csv_writer = csv.writer(output_file)
-        csv_writer.writerow(
-            [int(datetime.datetime.now().timestamp() * 1000), value_of_n, results])
+    if(len(sys.argv) == 3):
+        with open("Logs/log_one.txt", "w") as output_file:
+            csv_writer = csv.writer(output_file)
+            csv_writer.writerow([int(datetime.datetime.now().timestamp() * 1000), value_of_n, results])
+    else:
+        with open("Logs/log.txt", "a") as output_file:
+            csv_writer = csv.writer(output_file)
+            csv_writer.writerow(
+                [int(datetime.datetime.now().timestamp() * 1000), value_of_n, results])
