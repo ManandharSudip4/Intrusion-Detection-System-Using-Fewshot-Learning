@@ -19,7 +19,7 @@ def min_max_transform_prediction(data):
         norm_data[0,i] = np.min(v)
         norm_data[1,i] = np.max(v)
     need = np.asarray(norm_data)
-    np.savetxt("minmaxop2.csv", need, delimiter=",")
+    np.savetxt("AI/IGTD1dto2d/minmaxop2.csv", need, delimiter=",")
     exit(0)
     return 0
 
@@ -34,7 +34,7 @@ def min_max_transform(data):
     Return:
     norm_data: the data array after transformation
     '''
-    datamm = pd.read_csv("minmaxop.csv", low_memory=False, sep=',', engine='c', na_values=['na', '-', ''], 
+    datamm = pd.read_csv("AI/IGTD1dto2d/minmaxop.csv", low_memory=False, sep=',', engine='c', na_values=['na', '-', ''], 
                   header=None)
     datamm = datamm.values
     norm_data = np.empty(data.shape)
@@ -536,7 +536,7 @@ def generate_image_data(label, data, index, num_row, num_column, coord, image_fo
     samples: the names of indices of the samples
     '''
 
-    index = np.genfromtxt("index.csv", delimiter=",", dtype=int)
+    index = np.genfromtxt("AI/IGTD1dto2d/index.csv", delimiter=",", dtype=int)
 
     if isinstance(data, pd.DataFrame):
         samples = data.index.map(np.str)
@@ -662,8 +662,8 @@ def table_to_image(label, norm_d, scale, fea_dist_method, image_dist_method, sav
     # print("First: ", index)
     # print(type(index))
 
-    need = np.asarray(index)
-    np.savetxt("foo6.csv", need, delimiter=",")
+    # need = np.asarray(index)
+    # np.savetxt("foo6.csv", need, delimiter=",")
 
     fig = plt.figure()
     plt.plot(time, err)
@@ -678,7 +678,7 @@ def table_to_image(label, norm_d, scale, fea_dist_method, image_dist_method, sav
     # print("This is main character", min_id)
 
     # print("Edit1 Starts at here")
-    index = np.genfromtxt("index.csv", delimiter=",", dtype=int)
+    index = np.genfromtxt("AI/IGTD1dto2d/index.csv", delimiter=",", dtype=int)
     # print("----------------------------------")
 
     # ranking_feature_random = ranking_feature[index[min_id, :], :]

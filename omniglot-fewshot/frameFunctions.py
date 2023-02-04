@@ -29,7 +29,7 @@ model = ProtoNet(
 
 model.load_state_dict(
     torch.load(
-        "/home/user/manualpartition/teamIDS/IDS/ai/Outputs/Models/70pCom_euclidean_one/model_12"
+        "AI/Models/model_12"
     )
 )
 

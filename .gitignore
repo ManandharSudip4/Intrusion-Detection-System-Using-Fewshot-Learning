@@ -9,3 +9,7 @@ omniglot-fewshot/IGTD-results_for_omniglot
 omniglot-fewshot/output.csv
 omniglot-fewshot/__pycache__
 omniglot-fewshot/IGTD-results_for_omniglot
+Models/*
+Torches/*
+Results/*
+*/__pycache__/*
