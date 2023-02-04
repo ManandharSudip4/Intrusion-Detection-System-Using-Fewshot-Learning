@@ -56,7 +56,7 @@ while True:
             print("Error Message 3: ", e)
             break 
     try:
-        samples = igtd(csv_reader, result_path)
+        samples = igtd(csv_reader, result_path, last_len)
         
         for row in samples:
             # .txt files can be created here
@@ -70,7 +70,9 @@ while True:
             # Write the results to a new CSV file
             with open("output.csv", "a") as output_file:
                 csv_writer = csv.writer(output_file)
-                csv_writer.writerow([f"Time {row}", results])
+                row_index=last_len + int(row)
+                csv_writer.writerow([f"Time: {row_index} ", results])
+        last_len = current_len
     except Exception as e:
         print("Error Message 2: ", e)
     time.sleep(10) # Sleep for 10 seconds before checking for new rows again

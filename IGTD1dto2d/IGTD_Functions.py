@@ -161,173 +161,6 @@ def generate_matrix_distance_ranking(num_r, num_c, method='Euclidean'):
 
 
 
-def IGTD_absolute_error(source, target, max_step=1000, switch_t=0, val_step=50, min_gain=0.00001, random_state=1,
-                        save_folder=None, file_name=''):
-    '''
-    This function switches the order of rows (columns) in the source ranking matrix to make it similar to the target
-    ranking matrix. In each step, the algorithm randomly picks a row that has not been switched with others for
-    the longest time and checks all possible switch of this row, and selects the switch that reduces the
-    dissimilarity most. Dissimilarity (i.e. the error) is the summation of absolute difference of
-    lower triangular elements between the rearranged source ranking matrix and the target ranking matrix.
-
-    Input:
-    source: a symmetric ranking matrix with zero diagonal elements.
-    target: a symmetric ranking matrix with zero diagonal elements. 'source' and 'target' should have the same size.
-    max_step: the maximum steps that the algorithm should run if never converges.
-    switch_t: the threshold to determine whether switch should happen
-    val_step: number of steps for checking gain on the objective function to determine convergence
-    min_gain: if the objective function is not improved more than 'min_gain' in 'val_step' steps,
-        the algorithm terminates.
-    random_state: for setting random seed.
-    save_folder: a path to save the picture of source ranking matrix in the optimization process.
-    file_name: a string as part of the file names for saving results
-
-    Return:
-    index_record: indices to rearrange the rows(columns) in source obtained the optimization process
-    err_record: error obtained in the optimization process
-    run_time: the time at which each step is completed in the optimization process
-    '''
-
-    np.random.RandomState(seed=random_state)
-    if os.path.exists(save_folder):
-        shutil.rmtree(save_folder)
-    os.mkdir(save_folder)
-
-    source = source.copy()
-    num = source.shape[0]
-    tril_id = np.tril_indices(num, k=-1)
-    index = np.array(range(num))
-    index_record = np.empty((max_step + 1, num))
-    index_record.fill(np.nan)
-    index_record[0, :] = index.copy()
-
-    # calculate the error associated with each row
-    err_v = np.empty(num)
-    err_v.fill(np.nan)
-    for i in range(num):
-        err_v[i] = np.sum(np.abs(source[i, 0:i] - target[i, 0:i])) + \
-                   np.sum(np.abs(source[(i + 1):, i] - target[(i + 1):, i]))
-
-    step_record = -np.ones(num)
-    err_record = [np.sum(abs(source[tril_id] - target[tril_id]))]
-    pre_err = err_record[0]
-    t1 = time.time()
-    run_time = [0]
-
-    for s in range(max_step):
-        delta = np.ones(num) * np.inf
-
-        # randomly pick a row that has not been considered for the longest time
-        idr = np.where(step_record == np.min(step_record))[0]
-        ii = idr[np.random.permutation(len(idr))[0]]
-
-        for jj in range(num):
-            if jj == ii:
-                continue
-
-            if ii < jj:
-                i = ii
-                j = jj
-            else:
-                i = jj
-                j = ii
-
-            err_ori = err_v[i] + err_v[j] - np.abs(source[j, i] - target[j, i])
-
-            err_i = np.sum(np.abs(source[j, :i] - target[i, :i])) + \
-                    np.sum(np.abs(source[(i + 1):j, j] - target[(i + 1):j, i])) + \
-                    np.sum(np.abs(source[(j + 1):, j] - target[(j + 1):, i])) + np.abs(source[i, j] - target[j, i])
-            err_j = np.sum(np.abs(source[i, :i] - target[j, :i])) + \
-                    np.sum(np.abs(source[i, (i + 1):j] - target[j, (i + 1):j])) + \
-                    np.sum(np.abs(source[(j + 1):, i] - target[(j + 1):, j])) + np.abs(source[i, j] - target[j, i])
-            err_test = err_i + err_j - np.abs(source[i, j] - target[j, i])
-
-            delta[jj] = err_test - err_ori
-
-        delta_norm = delta / pre_err
-        id = np.where(delta_norm <= switch_t)[0]
-        if len(id) > 0:
-            jj = np.argmin(delta)
-
-            # Update the error associated with each row
-            if ii < jj:
-                i = ii
-                j = jj
-            else:
-                i = jj
-                j = ii
-            for k in range(num):
-                if k < i:
-                    err_v[k] = err_v[k] - np.abs(source[i, k] - target[i, k]) - np.abs(source[j, k] - target[j, k]) + \
-                               np.abs(source[j, k] - target[i, k]) + np.abs(source[i, k] - target[j, k])
-                elif k == i:
-                    err_v[k] = np.sum(np.abs(source[j, :i] - target[i, :i])) + \
-                    np.sum(np.abs(source[(i + 1):j, j] - target[(i + 1):j, i])) + \
-                    np.sum(np.abs(source[(j + 1):, j] - target[(j + 1):, i])) + np.abs(source[i, j] - target[j, i])
-                elif k < j:
-                    err_v[k] = err_v[k] - np.abs(source[k, i] - target[k, i]) - np.abs(source[j, k] - target[j, k]) + \
-                               np.abs(source[k, j] - target[k, i]) + np.abs(source[i, k] - target[j, k])
-                elif k == j:
-                    err_v[k] = np.sum(np.abs(source[i, :i] - target[j, :i])) + \
-                    np.sum(np.abs(source[i, (i + 1):j] - target[j, (i + 1):j])) + \
-                    np.sum(np.abs(source[(j + 1):, i] - target[(j + 1):, j])) + np.abs(source[i, j] - target[j, i])
-                else:
-                    err_v[k] = err_v[k] - np.abs(source[k, i] - target[k, i]) - np.abs(source[k, j] - target[k, j]) + \
-                               np.abs(source[k, j] - target[k, i]) + np.abs(source[k, i] - target[k, j])
-
-            # switch rows i and j
-            ii_v = source[ii, :].copy()
-            jj_v = source[jj, :].copy()
-            source[ii, :] = jj_v
-            source[jj, :] = ii_v
-            ii_v = source[:, ii].copy()
-            jj_v = source[:, jj].copy()
-            source[:, ii] = jj_v
-            source[:, jj] = ii_v
-            err = delta[jj] + pre_err
-
-            # update rearrange index
-            t = index[ii]
-            index[ii] = index[jj]
-            index[jj] = t
-
-            # update step record
-            step_record[ii] = s
-            step_record[jj] = s
-        else:
-            # error is not changed due to no switch
-            err = pre_err
-
-            # update step record
-            step_record[ii] = s
-
-        err_record.append(err)
-        # print('Step ' + str(s) + ' err: ' + str(err))
-        index_record[s + 1, :] = index.copy()
-        run_time.append(time.time() - t1)
-
-        if s > val_step:
-            if np.sum((err_record[-val_step - 1] - np.array(err_record[(-val_step):])) / err_record[
-                -val_step - 1] >= min_gain) == 0:
-                break
-
-        pre_err = err
-
-    index_record = index_record[:len(err_record), :].astype(np.int)
-    if save_folder is not None:
-        pd.DataFrame(index_record).to_csv(save_folder + '/' + file_name + '_index.txt', header=False, index=False,
-            sep='\t', lineterminator='\r\n')
-        pd.DataFrame(np.transpose(np.vstack((err_record, np.array(range(s + 2))))),
-            columns=['error', 'steps']).to_csv(save_folder + '/' + file_name + '_error_and_step.txt',
-            header=True, index=False, sep='\t', lineterminator='\r\n')
-        pd.DataFrame(np.transpose(np.vstack((err_record, run_time))), columns=['error', 'run_time']).to_csv(
-            save_folder + '/' + file_name + '_error_and_time.txt', header=True, index=False, sep='\t',
-            lineterminator='\r\n')
-
-    return index_record, err_record, run_time
-
-
-
 def IGTD_square_error(source, target, max_step=1000, switch_t=0, val_step=50, min_gain=0.00001, random_state=1,
                       save_folder=None, file_name=''):
     '''
@@ -515,7 +348,7 @@ def IGTD(source, target, err_measure='abs', max_step=1000, switch_t=0, val_step=
 
 
 # Needed 4
-def generate_image_data(label, data, index, num_row, num_column, coord, image_folder=None, file_name=''):
+def generate_image_data(label, data, index, num_row, num_column, coord, image_folder=None, file_name='', last_len=0):
     '''
     This function generates the data in image format according to rearrangement indices. It saves the data
     sample-by-sample in both txt files and image files
@@ -543,10 +376,9 @@ def generate_image_data(label, data, index, num_row, num_column, coord, image_fo
         data = data.values
     else:
         samples = [str(i) for i in range(data.shape[0])]
-
-    if os.path.exists(image_folder):
-        shutil.rmtree(image_folder)
-    os.mkdir(image_folder)
+    
+    if not os.path.exists(image_folder):
+        os.mkdir(image_folder)
 
     data_2 = data.copy()
     data_2 = data_2[:, index]
@@ -579,14 +411,15 @@ def generate_image_data(label, data, index, num_row, num_column, coord, image_fo
             #     + samples[i] + '_data.txt', header=None, index=None, sep='\t', lineterminator='\r\n')
             if not os.path.exists(image_folder):
                 os.makedirs(image_folder)
+            row_index = last_len + int(samples[i])
             pd.DataFrame(image_data[:, :, i], index=None, columns=None).to_csv(image_folder + '/' + file_name + '_'
-                + samples[i] + '_data.txt', header=None, index=None, sep='\t', lineterminator='\r\n')
+                + str(row_index) + '_data.txt', header=None, index=None, sep='\t', lineterminator='\r\n')
     return image_data, samples
 
 
 
 def table_to_image(label, norm_d, scale, fea_dist_method, image_dist_method, save_image_size, max_step, val_step, normDir,
-                   error, switch_t=0, min_gain=0.00001):
+                   error, last_len=0, switch_t=0, min_gain=0.00001):
     '''
     This function converts tabular data into images using the IGTD algorithm. 
 
@@ -694,7 +527,7 @@ def table_to_image(label, norm_d, scale, fea_dist_method, image_dist_method, sav
     # data, samples = generate_image_data(label=label, data=norm_d, index=index[min_id, :], num_row=scale[0], num_column=scale[1],
         # coord=coordinate, image_folder=normDir + '/data', file_name='')
     data, samples = generate_image_data(label=label, data=norm_d, index=index, num_row=scale[0], num_column=scale[1],
-        coord=coordinate, image_folder=normDir + '/data', file_name='')
+        coord=coordinate, image_folder=normDir + '/data', file_name='', last_len=last_len)
     output = open(normDir + '/Results.pkl', 'wb')
     cp.dump(norm_d, output)
     cp.dump(data, output)

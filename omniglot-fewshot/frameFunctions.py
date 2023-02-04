@@ -75,7 +75,7 @@ def prediction(query_path, support):
     return results, value_of_n
 
 
-def igtd(csv_reader, result_path):
+def igtd(csv_reader, result_path, last_len=0):
     # pre-process
     csv_reader['01'] = 0
     csv_reader['02'] = 0
@@ -98,10 +98,10 @@ def igtd(csv_reader, result_path):
     error = 'squared'
     
     result_dir = os.path.join(result_path, "euclidean")
-    os.makedirs(name=result_dir, exist_ok=True)
+    # os.makedirs(name=result_dir, exist_ok=True)
     label = ['Benign', 'Data'] # dummy label
     samples = table_to_image(label, norm_data, [num_row, num_col], fea_dist_method, image_dist_method, save_image_size,
-                max_step, val_step, result_dir, error)
+                max_step, val_step, result_dir, error, last_len)
     samples = samples.tolist()
     t4 = time.time()
     
