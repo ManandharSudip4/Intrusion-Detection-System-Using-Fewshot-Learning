@@ -36,6 +36,8 @@ print(csv_reader)
 print(os.getcwd())
 samples = igtd(csv_reader, result_path)
 
+count = 0
+
 for row in samples:
     # .txt files can be created here
     # prediction block
@@ -47,10 +49,24 @@ for row in samples:
     print("-------------------------------------------------")
 
     # Write the results to a new CSV file
-    if(len(sys.argv) == 3):
-        with open("Logs/log_one.txt", "w") as output_file:
-            csv_writer = csv.writer(output_file)
-            csv_writer.writerow([int(datetime.datetime.now().timestamp() * 1000), value_of_n, results])
+    if (len(sys.argv) == 3):
+        if (sys.argv[2] == 1):
+            with open("Logs/log_one.txt", "w") as output_file:
+                csv_writer = csv.writer(output_file)
+                csv_writer.writerow(
+                    [int(datetime.datetime.now().timestamp() * 1000), value_of_n, results])
+        else:
+            if not count:
+                count += 1
+                with open("Logs/log_many.txt", "w") as output_file:
+                    csv_writer = csv.writer(output_file)
+                    csv_writer.writerow(
+                        [int(datetime.datetime.now().timestamp() * 1000), value_of_n, results])
+            else:
+                with open("Logs/log_many.txt", "a") as output_file:
+                    csv_writer = csv.writer(output_file)
+                    csv_writer.writerow(
+                        [int(datetime.datetime.now().timestamp() * 1000), value_of_n, results])
     else:
         with open("Logs/log.txt", "a") as output_file:
             csv_writer = csv.writer(output_file)

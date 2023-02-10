@@ -12,4 +12,5 @@ omniglot-fewshot/IGTD-results_for_omniglot
 Models/*
 Torches/*
 Results/*
+Datasets/*
 */__pycache__/*
