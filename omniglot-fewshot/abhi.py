@@ -86,3 +86,4 @@ df = pd.read_csv('Logs/capture.csv')
 df1=df.rename(columns=colsForMapping)
 df1=df1[cic_cols]
 
+
