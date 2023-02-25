@@ -28,16 +28,16 @@ if len(sys.argv) == 3:
 
 else:
     fileFormat = sys.argv[3]
-    with open(filename, "r") as f:
+    with open("uploads/"+filename, "r") as f:
         contents = f.read().strip()
         if re.search("\d", contents.split("\n")[0]):
-            df = pd.read_csv(filename, header=None)
+            df = pd.read_csv("uploads/"+filename, header=None)
             if fileFormat == "cicflowmeter":
                 df.columns = cicflowmeter_cols
             else:
                 df.columns = cicids_cols
         else:
-            df = pd.read_csv(filename)
+            df = pd.read_csv("uploads/"+filename)
         if fileFormat == "cicflowmeter":
             df1 = df.rename(columns=colsForMapping)
             data = df1[cicids_cols].astype(float)
@@ -65,11 +65,13 @@ for index, row in enumerate(samples):
         if fileFormat == "cicflowmeter":
             actual_class = ""
         else:
-            if line_no:
-                actual_class = df.iloc[line_no - 1]["Label"]
+            if "Label" in df.columns:
+                if line_no:
+                    actual_class = df.iloc[line_no - 1]["Label"]
+                else:
+                    actual_class = df.iloc[index]["Label"]
             else:
-                actual_class = df.iloc[index]["Label"]
-                pass
+                actual_class = "N/A"
 
     if not count:
         count += 1
