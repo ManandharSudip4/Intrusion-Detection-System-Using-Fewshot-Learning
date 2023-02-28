@@ -10,8 +10,8 @@ from cols_map import cicids_cols, cicflowmeter_cols, colsForMapping
 result_path = "AI/Results"
 absolute_result_path = "AI/Results/euclidean/data"
 n_support = 5
-test_x = torch.load("AI/Torches/Testing/30pCom_test_x_euclidean_one55.pt")
-test_y = torch.load("AI/Torches/Testing/30pCom_test_y_euclidean_one55.pt")
+test_x = torch.load("AI/Torches/Testing/New_test_x.pt")
+test_y = torch.load("AI/Torches/Testing/New_test_y.pt")
 n_way = len(test_y.unique())
 
 filename = sys.argv[1]
@@ -28,16 +28,16 @@ if len(sys.argv) == 3:
 
 else:
     fileFormat = sys.argv[3]
-    with open("uploads/"+filename, "r") as f:
+    with open("uploads/" + filename, "r") as f:
         contents = f.read().strip()
         if re.search("\d", contents.split("\n")[0]):
-            df = pd.read_csv("uploads/"+filename, header=None)
+            df = pd.read_csv("uploads/" + filename, header=None)
             if fileFormat == "cicflowmeter":
                 df.columns = cicflowmeter_cols
             else:
                 df.columns = cicids_cols
         else:
-            df = pd.read_csv("uploads/"+filename)
+            df = pd.read_csv("uploads/" + filename)
         if fileFormat == "cicflowmeter":
             df1 = df.rename(columns=colsForMapping)
             data = df1[cicids_cols].astype(float)

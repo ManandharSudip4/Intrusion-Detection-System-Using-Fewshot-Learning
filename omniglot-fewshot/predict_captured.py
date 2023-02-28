@@ -49,8 +49,8 @@ class MyHandler(FileSystemEventHandler):
 result_path = "AI/Results"
 absolute_result_path = "AI/Results/euclidean/data"
 n_support = 5
-test_x = torch.load("AI/Torches/Testing/30pCom_test_x_euclidean_one55.pt")
-test_y = torch.load("AI/Torches/Testing/30pCom_test_y_euclidean_one55.pt")
+test_x = torch.load("AI/Torches/Testing/New_test_x.pt")
+test_y = torch.load("AI/Torches/Testing/New_test_y.pt")
 n_way = len(test_y.unique())
 
 file_to_watch = "./Logs/capture.csv"
