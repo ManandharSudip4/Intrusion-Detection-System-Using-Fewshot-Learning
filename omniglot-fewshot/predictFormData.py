@@ -115,3 +115,4 @@ for index, row in enumerate(samples):
                         results,
                     ]
                 )
+    actual_class = "unknown"
