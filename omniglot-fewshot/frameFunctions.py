@@ -40,7 +40,7 @@ model = ProtoNet(
     z_dim=256,
 ).to("cuda:0")
 
-model.load_state_dict(torch.load("AI/Models/model_12"))
+model.load_state_dict(torch.load("AI/Models/model_99"))
 
 model.eval()
 

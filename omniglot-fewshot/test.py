@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     model.load_state_dict(
         torch.load(
-            "/home/user/manualpartition/teamIDS/IDS/ai/Outputs/Models/70pCom_euclidean_one/model_12"
+            "/home/user/manualpartition/teamIDS/IDS/ai/Outputs/Models/70pCom_euclidean_one/model_99"
         )
     )
 
